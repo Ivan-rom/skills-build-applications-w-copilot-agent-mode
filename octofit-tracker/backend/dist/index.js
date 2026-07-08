@@ -10,8 +10,9 @@ const app = (0, express_1.default)();
 const port = Number(process.env.PORT || 8000);
 app.use(express_1.default.json());
 function getApiBaseUrl(req) {
-    if (process.env.CODESPACE_NAME) {
-        return `https://${process.env.CODESPACE_NAME}-8000.app.github.dev`;
+    const codespaceName = process.env.CODESPACE_NAME?.trim();
+    if (codespaceName) {
+        return `https://${codespaceName}-8000.app.github.dev`;
     }
     const forwardedProto = req.headers['x-forwarded-proto'];
     const protocol = forwardedProto === 'https' ? 'https' : 'http';
@@ -58,6 +59,6 @@ app.get(['/api/workouts', '/api/workouts/'], (req, res) => {
     void sendCollection(res, 'workouts', () => models_1.Workout.find().lean(), req);
 });
 void (0, database_1.connectToDatabase)();
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
     console.log(`API listening on http://localhost:${port}`);
 });
