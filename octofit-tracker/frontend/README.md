@@ -1,16 +1,109 @@
-# React + Vite
+# Octofit Tracker Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+React 19 + Vite presentation tier for the Octofit Tracker multi-tier application.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **React 19** with Vite for fast development and building
+- **React Router** for client-side navigation
+- **Bootstrap 5** for styling
+- **Environment variables** for dynamic API configuration
+- **Component-based architecture** for Users, Activities, Workouts, Teams, and Leaderboard
+- **Fallback API URL** handling when `VITE_CODESPACE_NAME` is not set
 
-## React Compiler
+## Environment Setup
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+The frontend requires the `VITE_CODESPACE_NAME` environment variable to construct API URLs.
 
-## Expanding the Oxlint configuration
+### For Local Development
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+1. Copy `.env.local.example` to `.env.local`:
+   ```bash
+   cp .env.local.example .env.local
+   ```
+
+2. The fallback will use `http://localhost:8000/api` when `VITE_CODESPACE_NAME` is not set.
+
+### For GitHub Codespaces
+
+In GitHub Codespaces, `VITE_CODESPACE_NAME` is automatically provided by the environment. The frontend will construct API URLs like:
+```
+https://${VITE_CODESPACE_NAME}-8000.app.github.dev/api
+```
+
+If you need to manually set it (e.g., for testing), update `.env.local`:
+```
+VITE_CODESPACE_NAME=your-codespace-name
+```
+
+## Project Structure
+
+```
+src/
+├── components/          # Feature components
+│   ├── Users.jsx
+│   ├── Activities.jsx
+│   ├── Workouts.jsx
+│   ├── Teams.jsx
+│   └── Leaderboard.jsx
+├── utils/
+│   └── api.js          # API utilities and environment configuration
+├── App.jsx             # Main app with routing
+└── main.jsx            # React 19 entry point
+```
+
+## API Integration
+
+All API calls go through `src/utils/api.js`, which provides:
+
+- `getApiBaseUrl()` - Returns the API base URL with proper fallback handling
+- `fetchFromApi(endpoint, options)` - Fetches from API with support for:
+  - Paginated responses (`data.results`)
+  - Array responses
+  - Direct object responses
+
+### Example Component Usage
+
+```jsx
+import { fetchFromApi } from '../utils/api'
+
+export default function Users() {
+  const [users, setUsers] = useState([])
+
+  useEffect(() => {
+    fetchFromApi('/users/')
+      .then(setUsers)
+      .catch(err => console.error(err))
+  }, [])
+
+  return (/* render users */)
+}
+```
+
+## Development
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+
+# Lint code
+npm run lint
+```
+
+## Navigation
+
+The app uses React Router for navigation between:
+- `/` - Users list
+- `/activities` - Activities list
+- `/workouts` - Workouts list
+- `/teams` - Teams list
+- `/leaderboard` - Competitive leaderboard
